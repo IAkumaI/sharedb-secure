@@ -1,0 +1,32 @@
+{
+  "name": "sharedb-secure",
+  "version": "0.1.0",
+  "description": "Access control for ShareDB",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha"
+  },
+  "keywords": [
+    "sharedb",
+    "racerjs",
+    "derbyjs",
+    "access-control"
+  ],
+  "author": {
+    "name": "Valery Ozarnichuk",
+    "email": "meru.no.akuma@gmail.com",
+    "url": "https://github.com/IAkumaI"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "async": "^3.1.0",
+    "debug": "^4.1.1",
+    "lodash": "^4.17.15",
+    "z-schema": "^4.1.1"
+  },
+  "devDependencies": {
+    "assert": "^2.0.0",
+    "derby": "^0.10.11",
+    "mocha": "^6.2.0"
+  }
+}
