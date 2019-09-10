@@ -18,6 +18,15 @@ let model = backend.createModel();
 model.socket.stream.checkServerAccess = true; // If you want to check access on the server side
 ```
 
+### Features
+
+Library provide access controll for create, read, update and delete oprations with ShareDB in DerbyJS application.
+
+* Allow to read only several fields for some user group
+* Disallow to read whole collections for another group
+* Allow only create but not update operations on any of fields for any colelction for any user group
+* Schema validation with Z-Schema
+
 ### Options
 
 You may view example options in example directory. Options is a JavaScript Object with keys:
@@ -54,7 +63,9 @@ For `read` not allowed fields will be cut off from snapshots and ops.
 
 If agent try to create or update not allowed field - error will be throwed. 
 
-#### collections.\*.roles.\*.[create|read|update].\*.check
+May be set to `['*']` for allow operation on all fields.
+
+#### collections.\*.roles.\*.[create|read|update|delete].\*.check
 
 Callback function with arguments *(docId, doc, session, req, next)* for create, read and delete.
 Arguments for update is *(docId, oldDoc, newDoc, session, req, next)*.
