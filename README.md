@@ -1,4 +1,4 @@
-#ShareDB Secure
+# ShareDB Secure
 
 Access and schema control for [ShareDB](https://github.com/share/sharedb) and [DerbyJS](https://github.com/derbyjs/derby)
 
