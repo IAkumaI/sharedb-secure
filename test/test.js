@@ -12,44 +12,72 @@ function newBackend() {
     return backend;
 }
 
+describe('Schema validation', function () {
+    let backend = newBackend();
+
+    it('Schema validation when checkServerAccess false', function (done) {
+        let model = backend.createModel();
+        model.socket.stream.checkServerAccess = false;
+        model.create('test.someid', {title: 'Title'}, err => {
+            if (err) {
+                return done();
+            } else {
+                return done(new Error('test has no title field'));
+            }
+        });
+    });
+
+    it('Schema validation when checkServerAccess true', function (done) {
+        let model = backend.createModel();
+        model.socket.stream.checkServerAccess = true;
+        model.create('test.someid', {title: 'Title'}, err => {
+            if (err) {
+                return done();
+            } else {
+                return done(new Error('test has no title field'));
+            }
+        });
+    });
+});
+
 describe('checkServerAccess', function () {
     let backend = newBackend();
 
-    it('No check if checkServerAccess is false', function (done) {
+    it('checkServerAccess is false', function (done) {
         let model = backend.createModel();
         model.socket.stream.checkServerAccess = false;
 
         async.waterfall(
             [
                 (cb) => { // Create
-                    model.create('any_collection.someid', {title: 'Title'}, err => {
+                    model.create('test.someid', {str_prop: 'str_prop'}, err => {
                         return cb(err);
                     });
                 },
                 (cb) => { // Read
-                    model.fetch('any_collection.someid', err => {
+                    model.fetch('test.someid', err => {
                         if (err) return cb(err);
 
-                        if (!model.get('any_collection.someid')) {
-                            return cb(new Error('Can not read any_collection.someid'));
+                        if (!model.get('test.someid')) {
+                            return cb(new Error('Can not read test.someid'));
                         }
 
                         return cb();
                     });
                 },
                 (cb) => { // Update
-                    model.set('any_collection.someid.title', 'New title', err => {
+                    model.set('test.someid.str_prop', 'New str_prop', err => {
                         if (err) return cb(err);
 
-                        if (model.get('any_collection.someid.title') !== 'New title') {
-                            return cb(new Error('Can not update any_collection.someid.title'));
+                        if (model.get('test.someid.str_prop') !== 'New str_prop') {
+                            return cb(new Error('Can not update test.someid.str_prop'));
                         }
 
                         return cb();
                     });
                 },
                 (cb) => { // Delete
-                    model.del('any_collection.someid', err => {
+                    model.del('test.someid', err => {
                         return cb(err);
                     });
                 },
@@ -61,9 +89,9 @@ describe('checkServerAccess', function () {
         );
     });
 
-    it('Check access if checkServerAccess is true', function (done) {
+    it('checkServerAccess is true', function (done) {
         let model = backend.createModel();
-        model.create('any_collection.someid', {title: 'Title'}, err => {
+        model.create('test.someid', {str_prop: 'str_prop'}, err => {
             if (err) return done(err);
 
             model.socket.stream.checkServerAccess = true;
@@ -71,7 +99,7 @@ describe('checkServerAccess', function () {
             async.waterfall(
                 [
                     (cb) => { // Create
-                        model.create('any_collection.somenew', {title: 'Title'}, err => {
+                        model.create('test.somenew', {str_prop: 'str_prop'}, err => {
                             if (err) {
                                 return cb();
                             }
@@ -80,7 +108,7 @@ describe('checkServerAccess', function () {
                         });
                     },
                     (cb) => { // Read
-                        model.fetch('any_collection.somenew', err => {
+                        model.fetch('test.somenew', err => {
                             if (err) {
                                 return cb();
                             }
@@ -89,7 +117,7 @@ describe('checkServerAccess', function () {
                         });
                     },
                     (cb) => { // Update
-                        model.set('any_collection.someid.title', 'New title', err => {
+                        model.set('test.someid.str_prop', 'New str_prop', err => {
                             if (err) {
                                 return cb();
                             }
@@ -98,7 +126,7 @@ describe('checkServerAccess', function () {
                         });
                     },
                     (cb) => { // Delete
-                        model.del('any_collection.someid', err => {
+                        model.del('test.someid', err => {
                             if (err) {
                                 return cb();
                             }
@@ -112,6 +140,30 @@ describe('checkServerAccess', function () {
                     done(err);
                 }
             );
+        });
+    });
+
+    it('Can not create undefined collection when checkServerAccess false', function (done) {
+        let model = backend.createModel();
+        model.socket.stream.checkServerAccess = false;
+        model.create('any_collection.someid', {title: 'Title'}, err => {
+            if (err) {
+                return done();
+            } else {
+                return done(new Error('any_collection.someid was created but any_collection not defined'));
+            }
+        });
+    });
+
+    it('Can not create undefined collection when checkServerAccess true', function (done) {
+        let model = backend.createModel();
+        model.socket.stream.checkServerAccess = true;
+        model.create('any_collection.someid', {title: 'Title'}, err => {
+            if (err) {
+                return done();
+            } else {
+                return done(new Error('any_collection.someid was created but any_collection not defined'));
+            }
         });
     });
 });
