@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "assert": "^2.0.0",
-    "derby": "^0.10.11",
+    "derby": "^0.10.27",
     "mocha": "^6.2.0"
   }
 }
