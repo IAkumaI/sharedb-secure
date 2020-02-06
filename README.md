@@ -26,6 +26,33 @@ Library provide access controll for create, read, update and delete oprations wi
 * Disallow to read whole collections for another group
 * Allow only create but not update operations on any of fields for any colelction for any user group
 * Schema validation with Z-Schema
+* Server queries with disallowed regular queries
+
+### Server queries
+
+First, you should provide `serverQuery` property for your collection. Key is query name, value - function which must create real query object.
+
+You can return an error in first argument.
+
+Thanks to https://github.com/dmapper/server-query
+
+Be aware of *just* passing params to real query and check it to be a strings, objects, arrays or what you need.
+
+Example:
+```
+// options
+serverQuery: {
+    test: function (params, req, next) {
+        return next(null, {title: '' + params.p1});
+    },
+}
+
+// Call
+model.query('collection', {
+    $serverQuery: 'test',
+    $params: {p1: 'some string'}
+});
+```
 
 ### Options
 
@@ -76,9 +103,21 @@ You can set `check:true` is you don not to check any values.
 
 If function is not provided access will be denied.
 
+### collections.\*.serverQuery
+
+An object with keys - query names, and values - functions (params, req, next).
+
+Function calls when server query executed for collection.
+
 #### options.godRole
 
 String. If this role will be returned from `getRole` access will be granted without any checks. Just for developers or super-admins or gods.
+
+#### options.allowRegularQueries
+
+Allow regular queries. Default to `false`
+
+Set `true` if you do not need to secure user queries.
 
 #### zschema.options
 

@@ -1,12 +1,15 @@
 const {describe, it, before} = require('mocha');
+const {expect} = require('chai');
 const assert = require('assert');
 const async = require('async');
 const derby = require('derby');
+const ShareDBMingo = require('sharedb-mingo-memory');
 const options = require('../examples/options');
 const sharedbSecure = require('../lib');
+const Utils = require('../lib/utils');
 
 function newBackend() {
-    let backend = derby.createBackend();
+    let backend = derby.createBackend({db: new ShareDBMingo()});
     sharedbSecure(backend, options);
 
     return backend;
@@ -19,11 +22,8 @@ describe('Schema validation', function () {
         let model = backend.createModel();
         model.socket.stream.checkServerAccess = false;
         model.create('test.someid', {title: 'Title'}, err => {
-            if (err) {
-                return done();
-            } else {
-                return done(new Error('test has no title field'));
-            }
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 
@@ -31,11 +31,8 @@ describe('Schema validation', function () {
         let model = backend.createModel();
         model.socket.stream.checkServerAccess = true;
         model.create('test.someid', {title: 'Title'}, err => {
-            if (err) {
-                return done();
-            } else {
-                return done(new Error('test has no title field'));
-            }
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 });
@@ -147,11 +144,8 @@ describe('checkServerAccess', function () {
         let model = backend.createModel();
         model.socket.stream.checkServerAccess = false;
         model.create('any_collection.someid', {title: 'Title'}, err => {
-            if (err) {
-                return done();
-            } else {
-                return done(new Error('any_collection.someid was created but any_collection not defined'));
-            }
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 
@@ -159,11 +153,8 @@ describe('checkServerAccess', function () {
         let model = backend.createModel();
         model.socket.stream.checkServerAccess = true;
         model.create('any_collection.someid', {title: 'Title'}, err => {
-            if (err) {
-                return done();
-            } else {
-                return done(new Error('any_collection.someid was created but any_collection not defined'));
-            }
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 });
@@ -184,11 +175,8 @@ describe('Create access', function () {
         model.socket.stream.checkServerAccess = true;
 
         model.create('nocollection.id', testItem, err => {
-            if (err) {
-                return done();
-            }
-
-            return new Error('Must be an error');
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 
@@ -197,11 +185,8 @@ describe('Create access', function () {
         model.socket.stream.checkServerAccess = true;
 
         model.create('test.id', testItem, err => {
-            if (err) {
-                return done();
-            }
-
-            return new Error('Must be an error');
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 
@@ -211,11 +196,8 @@ describe('Create access', function () {
         model.socket.stream.testRole = 'guest';
 
         model.create('test.id', testItem, err => {
-            if (err) {
-                return done();
-            }
-
-            return new Error('Must be an error');
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 
@@ -225,11 +207,8 @@ describe('Create access', function () {
         model.socket.stream.testRole = 'user';
 
         model.create('test.id', testItem, err => {
-            if (err) {
-                return done();
-            }
-
-            return new Error('Must be an error');
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 
@@ -239,9 +218,7 @@ describe('Create access', function () {
         model.socket.stream.testRole = 'user';
 
         model.create('test.partialitem', {str_prop: 'some string', num_prop: 12345}, err => {
-            if (err) return done(err);
-
-            return done();
+            return done(err);
         });
     });
 
@@ -251,9 +228,7 @@ describe('Create access', function () {
         model.socket.stream.testRole = 'admin';
 
         model.create('test.fullitem', testItem, err => {
-            if (err) return done(err);
-
-            return done();
+            return done(err);
         });
     });
 
@@ -263,9 +238,7 @@ describe('Create access', function () {
         model.socket.stream.testRole = options.options.godRole;
 
         model.create('test.fullgoditem', testItem, err => {
-            if (err) return done(err);
-
-            return done();
+            return done(err);
         });
     });
 
@@ -276,11 +249,8 @@ describe('Create access', function () {
         model.socket.stream.testCheckFunc = true;
 
         model.create('test.fullitemchecktest', testItem, err => {
-            if (err) {
-                return done();
-            } else {
-                return done(new Error('Check function not called'));
-            }
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 });
@@ -310,11 +280,8 @@ describe('Read access', function () {
         model.socket.stream.checkServerAccess = true;
 
         model.fetch('nocollection.id', err => {
-            if (err) {
-                return done();
-            }
-
-            return new Error('Must be an error');
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 
@@ -323,11 +290,8 @@ describe('Read access', function () {
         model.socket.stream.checkServerAccess = true;
 
         model.fetch('test.id', err => {
-            if (err) {
-                return done();
-            }
-
-            return new Error('Must be an error');
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 
@@ -337,11 +301,8 @@ describe('Read access', function () {
         model.socket.stream.testRole = 'guest';
 
         model.fetch('test.id', err => {
-            if (err) {
-                return done();
-            }
-
-            return new Error('Must be an error');
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 
@@ -394,11 +355,8 @@ describe('Read access', function () {
         model.socket.stream.testCheckFunc = true;
 
         model.fetch('test.id', err => {
-            if (err) {
-                return done();
-            } else {
-                return done(new Error('Check function not called'));
-            }
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 });
@@ -427,11 +385,8 @@ describe('Update access', function () {
         existsModel.socket.stream.checkServerAccess = true;
 
         existsModel.set('test.id.str_prop', 'new string', err => {
-            if (err) {
-                return done();
-            }
-
-            return new Error('Must be an error');
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 
@@ -440,11 +395,8 @@ describe('Update access', function () {
         existsModel.socket.stream.testRole = 'guest';
 
         existsModel.set('test.id.str_prop', 'new string', err => {
-            if (err) {
-                return done();
-            }
-
-            return new Error('Must be an error');
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 
@@ -460,11 +412,8 @@ describe('Update access', function () {
                 if (err) return done(err);
 
                 model.set('test.id.obj_prop.obj_key_prop', 'new string', err => {
-                    if (err) {
-                        return done();
-                    }
-
-                    return new Error('Must be an error');
+                    expect(err).to.be.an('error');
+                    return done();
                 });
             });
         });
@@ -482,9 +431,7 @@ describe('Update access', function () {
                 if (err) return done(err);
 
                 model.set('test.id.obj_prop.obj_key_prop', 'new string', err => {
-                    if (err) return done(err);
-
-                    return done();
+                    return done(err);
                 });
             });
         });
@@ -502,9 +449,7 @@ describe('Update access', function () {
                 if (err) return done(err);
 
                 model.set('test.id.obj_prop.obj_key_prop', 'new string', err => {
-                    if (err) return done(err);
-
-                    return done();
+                    return done(err);
                 });
             });
         });
@@ -521,11 +466,8 @@ describe('Update access', function () {
             model.socket.stream.testCheckFunc = true;
 
             model.set('test.id.str_prop', 'new string', err => {
-                if (err) {
-                    return done();
-                }
-
-                return new Error('Must be an error');
+                expect(err).to.be.an('error');
+                return done();
             });
         });
     });
@@ -563,11 +505,8 @@ describe('Delete access', function () {
         existsModel.socket.stream.checkServerAccess = true;
 
         existsModel.del('test.id', err => {
-            if (err) {
-                return done();
-            }
-
-            return new Error('Must be an error');
+            expect(err).to.be.an('error');
+            return done();
         });
     });
 
@@ -576,11 +515,8 @@ describe('Delete access', function () {
         existsModel.socket.stream.testRole = 'guest';
 
         existsModel.del('test.id', err => {
-            if (err) {
-                return done();
-            }
-
-            return new Error('Must be an error');
+            expect(err).to.be.not.null;
+            return done();
         });
     });
 
@@ -593,9 +529,7 @@ describe('Delete access', function () {
             if (err) return done(err);
 
             model.del('test.id', err => {
-                if (err) return done(err);
-
-                return done();
+                return done(err);
             });
         });
     });
@@ -609,9 +543,7 @@ describe('Delete access', function () {
             if (err) return done(err);
 
             model.del('test.id2', err => {
-                if (err) return done(err);
-
-                return done();
+                return done(err);
             });
         });
     });
@@ -627,12 +559,109 @@ describe('Delete access', function () {
             model.socket.stream.testCheckFunc = true;
 
             model.del('test.id3', err => {
-                if (err) {
-                    return done();
-                }
-
-                return new Error('Must be an error');
+                expect(err).to.be.an('error');
+                return done();
             });
         });
+    });
+});
+
+describe('Server queries', function () {
+    let backend = newBackend();
+
+    before(function (done) {
+        let model = backend.createModel();
+
+        model.add('test', {str_prop: 'some string'}, err => {
+            if (err) return done(err);
+
+            model.add('test', {str_prop: 'some another string'}, err => {
+                model.close();
+                return done(err);
+            });
+        });
+    });
+
+    it('Regular queries disallowed', function (done) {
+        let model = backend.createModel();
+        model.socket.stream.checkServerAccess = true;
+        model.socket.stream.testRole = 'admin';
+
+        let $q = model.query('test', {str_prop: 'some string'});
+        $q.fetch(err => {
+            expect(err).to.be.an('error');
+            return done();
+        });
+    });
+
+    it('Regular extra queries disallowed', function (done) {
+        let model = backend.createModel();
+        model.socket.stream.checkServerAccess = true;
+        model.socket.stream.testRole = 'admin';
+
+        let $q = model.query('test', {$distinct: {field: '_id'}});
+        $q.fetch(err => {
+            expect(err).to.be.an('error');
+            return done();
+        });
+    });
+
+    it('Server query must exists', function (done) {
+        let model = backend.createModel();
+        model.socket.stream.checkServerAccess = true;
+        model.socket.stream.testRole = 'admin';
+
+        let $q = model.query('test', {
+            $serverQuery: 'noone',
+        });
+        $q.fetch(err => {
+            expect(err).to.be.an('error');
+            return done();
+        });
+    });
+
+    it('Server query works', function (done) {
+        let model = backend.createModel();
+        model.socket.stream.checkServerAccess = true;
+        model.socket.stream.testRole = 'admin';
+
+        let $q = model.query('test', {
+            $serverQuery: 'test',
+            $params: {p1: 'some string'}
+        });
+        $q.fetch(err => {
+            expect(err).to.not.be.an('error');
+            expect($q.get()).to.be.an('array').and.to.have.lengthOf(1);
+            expect($q.get()[0].str_prop).to.equal('some string');
+
+            return done();
+        });
+    });
+});
+
+describe('Utils', function () {
+    it('isIdsQuery', function () {
+        expect(Utils.isIdsQuery({title: 'title'})).to.be.false;
+        expect(Utils.isIdsQuery({_id: '123'})).to.be.false;
+        expect(Utils.isIdsQuery({_id: {$in: ['123'], $ne: '321'}})).to.be.false;
+        expect(Utils.isIdsQuery({_id: {$in: ['123']}, title: 'title'})).to.be.false;
+        expect(Utils.isIdsQuery({_id: {$in: ['123']}})).to.be.true;
+    });
+
+    it('isArray', function () {
+        expect(Utils.isArray(123)).to.be.false;
+        expect(Utils.isArray(false)).to.be.false;
+        expect(Utils.isArray(true)).to.be.false;
+        expect(Utils.isArray('123')).to.be.false;
+        expect(Utils.isArray({})).to.be.false;
+        expect(Utils.isArray({a: 1})).to.be.false;
+        expect(Utils.isArray([])).to.be.true;
+        expect(Utils.isArray([1, 2, 3])).to.be.true;
+    });
+
+    it('oneField', function () {
+        expect(Utils.oneField({})).to.be.false;
+        expect(Utils.oneField({a: 1, b: 1})).to.be.false;
+        expect(Utils.oneField({a: 1})).to.be.true;
     });
 });

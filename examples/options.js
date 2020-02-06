@@ -97,11 +97,18 @@ module.exports = {
                     },
                 },
             },
-        }
+
+            serverQuery: {
+                test: function (params, req, next) {
+                    return next(null, {str_prop: '' + params.p1});
+                },
+            },
+        },
     },
 
     options: {
         godRole: 'GOD_ROLE',
+        allowRegularQueries: false,
     },
 
     zschema: {
