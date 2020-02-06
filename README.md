@@ -20,7 +20,7 @@ model.socket.stream.checkServerAccess = true; // If you want to check access on 
 
 ### Upgrade 0.1.x to 0.2.0
 
-Server queryies was added. You must provide `serverQuery` to options or set `options.allowRegularQueries` to true.
+Server queries was added. You must provide `serverQuery` to options or set `options.allowRegularQueries` to true.
 
 ### Features
 
@@ -107,7 +107,7 @@ You can set `check:true` is you don not to check any values.
 
 If function is not provided access will be denied.
 
-### collections.\*.serverQuery
+#### collections.\*.serverQuery
 
 An object with keys - query names, and values - functions (params, req, next).
 
