@@ -18,6 +18,10 @@ let model = backend.createModel();
 model.socket.stream.checkServerAccess = true; // If you want to check access on the server side
 ```
 
+### Upgrade 0.1.x to 0.2.0
+
+Server queryies was added. You must provide `serverQuery` to options or set `options.allowRegularQueries` to true.
+
 ### Features
 
 Library provide access controll for create, read, update and delete oprations with ShareDB in DerbyJS application.
