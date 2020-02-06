@@ -582,7 +582,18 @@ describe('Server queries', function () {
         });
     });
 
-    it('Regular queries disallowed', function (done) {
+    it('Regular queries works when checkServerAccess false', function (done) {
+        let model = backend.createModel();
+        model.socket.stream.checkServerAccess = false;
+        model.socket.stream.testRole = 'admin';
+
+        let $q = model.query('test', {str_prop: 'some string'});
+        $q.fetch(err => {
+            return done(err);
+        });
+    });
+
+    it('Regular queries disallowed when checkServerAccess true', function (done) {
         let model = backend.createModel();
         model.socket.stream.checkServerAccess = true;
         model.socket.stream.testRole = 'admin';
@@ -594,7 +605,7 @@ describe('Server queries', function () {
         });
     });
 
-    it('Regular extra queries disallowed', function (done) {
+    it('Regular extra queries disallowed when checkServerAccess true', function (done) {
         let model = backend.createModel();
         model.socket.stream.checkServerAccess = true;
         model.socket.stream.testRole = 'admin';
@@ -623,6 +634,24 @@ describe('Server queries', function () {
     it('Server query works', function (done) {
         let model = backend.createModel();
         model.socket.stream.checkServerAccess = true;
+        model.socket.stream.testRole = 'admin';
+
+        let $q = model.query('test', {
+            $serverQuery: 'test',
+            $params: {p1: 'some string'}
+        });
+        $q.fetch(err => {
+            expect(err).to.not.be.an('error');
+            expect($q.get()).to.be.an('array').and.to.have.lengthOf(1);
+            expect($q.get()[0].str_prop).to.equal('some string');
+
+            return done();
+        });
+    });
+
+    it('Server query works without checkServerAccess', function (done) {
+        let model = backend.createModel();
+        model.socket.stream.checkServerAccess = false;
         model.socket.stream.testRole = 'admin';
 
         let $q = model.query('test', {
